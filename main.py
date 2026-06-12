@@ -30,3 +30,10 @@ async def get_books_by_id(isbn: str):
             return book
 
     raise HTTPException(status_code=404, detail="Книгу не знайдено")
+
+
+@app.post("/books")
+async def post_book(book:Book) -> Book:
+    book_record = book.model_dump()
+    books_db.append(book_record)
+    return book
