@@ -19,8 +19,8 @@ async def root():
 
 
 @app.get("/books", response_model=list[Book])
-async def get_books():
-    return books_db
+async def get_books(count: int = 10, offset: int = 0):
+    return books_db[offset : offset + count]
 
 
 @app.get("/books/{isbn}")
