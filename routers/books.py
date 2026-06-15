@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from books_db import books_db
 from schemas.books import Book
+
 router = APIRouter()
 
 
@@ -18,8 +19,21 @@ async def get_books_by_id(isbn: str):
     raise HTTPException(status_code=404, detail="Книгу не знайдено")
 
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_book(book: Book) -> Book:
+    books_ids = {b["isbn"] for b in books_db}
+    books_names = {b["name"] for b in books_db}
+
+    if book.isbn in books_ids or book.name in books_names:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Книжка з таким номером {book.isbn} вже існує."
+                if book.isbn in books_ids
+                else f"Книжка з такою назвою {book.name} вже існує."
+            ),
+        )
+
     book_record = book.model_dump()
     books_db.append(book_record)
     return book
